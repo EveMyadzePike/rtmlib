@@ -141,19 +141,30 @@ class PoseTracker:
                  det_frequency: int = 1,
                  tracking: bool = True,
                  tracking_thr: float = 0.3,
-                 mode: str = 'balanced',
+                 mode: str = 'balanced', #set to custom if using custom
                  to_openpose: bool = False,
                  backend: str = 'onnxruntime',
                  device: str = 'cpu'):
+        print(f'Initialize PoseTracker with solution, ', solution)
+        
 
-        model = solution(mode=mode,
-                         to_openpose=to_openpose,
+        # For custom yolo model 
+        if mode == 'custom':
+            self.mode = 'custom' 
+            model = solution() # To initialize custom yolo model 
+
+        else:
+            self.mode = mode
+            model = solution(
+            mode=mode, 
+                        to_openpose=to_openpose,
                          backend=backend,
-                         device=device)
-
+                         device=device
+                         )
+      
         try:
             self.det_model = model.det_model
-        except: # rtmo
+        except: 
             self.det_model = None
         self.pose_model = model.pose_model
 
@@ -177,11 +188,21 @@ class PoseTracker:
 
         if self.det_model is not None:
             if self.frame_cnt % self.det_frequency == 0:
-                bboxes = self.det_model(image)
+                
+                # custom yolo model gets all detections
+                if self.mode == 'custom':
+                    # get only person bboxes for pose estimation
+                    bboxes = self.det_model.get_person_bboxes(image)
+                else:
+                    bboxes = self.det_model(image) 
+    
             else:
                 bboxes = self.bboxes_last_frame
+            
+            #pass bboxes from detection to pose model to identify regions of interest
             keypoints, scores = self.pose_model(image, bboxes=bboxes)
-        else:  # rtmo
+        else: 
+            # rtmopose.py
             keypoints, scores = self.pose_model(image)
             
 
