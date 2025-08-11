@@ -11,7 +11,7 @@ backend = 'onnxruntime'  # alternatives: 'opencv', 'openvino'
 openpose_skeleton = False  # True for openpose-style, False for mmpose-style
 
 # Local paths
-onnx_model_path = 'newyolov8m.onnx'  # Path to your YOLOv8 ONNX model
+onnx_model_path = 'yolo_models/yolov8m.onnx'  # Path to your YOLOv8 ONNX model
 pose_model_path = (
     'https://download.openmmlab.com/mmpose/v1/projects/rtmw/onnx_sdk/'
     'rtmw-dw-x-l_simcc-cocktail14_270e-384x288_20231122.zip'
